@@ -10,10 +10,10 @@ from baselines.common.vec_env.subproc_vec_env import SubprocVecEnv
 
 
 def main():
-    config = tf.ConfigProto()
-    os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-    config.gpu_options.allow_growth = True
-    with tf.Session(config=config):
+    # config = tf.ConfigProto()
+    # os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+    # config.gpu_options.allow_growth = True
+    with tf.Session():  # config=config):
         PPOModel.learn(policy=policies.PPOPolicy, env=SubprocVecEnv([env.make_train_0,
                                                                      env.make_train_1,
                                                                      env.make_train_2,

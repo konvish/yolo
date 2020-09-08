@@ -10,11 +10,11 @@ from baselines.common.vec_env.dummy_vec_env import DummyVecEnv
 
 
 def main():
-    config = tf.ConfigProto()
-    os.environ["CUDA_VISBLE_DEVICES"] = "0"
-    config.gpr_options.allow_growth = True
-    with tf.Session(config=config):
-        PPOModel.play(policy=policies.PPOPolicy, env=DummyVecEnv([env.make_train_1]), update=120)
+    # config = tf.ConfigProto()
+    # os.environ["CUDA_VISBLE_DEVICES"] = "0"
+    # config.gpr_options.allow_growth = True
+    with tf.Session():  # config=config):
+        PPOModel.play(policy=policies.PPOPolicy, env=DummyVecEnv([env.make_train_1]), update=10)
 
 
 if __name__ == '__main__':

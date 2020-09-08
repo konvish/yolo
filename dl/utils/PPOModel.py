@@ -50,12 +50,12 @@ class PPOModel(object):
         def train(state_in, actions, returns, values, neglogpacs, lr, cliprange):
             advantages = returns - values
             advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
-            td_map = {train_model.inputs_: state_in, actions_: actions_,
+            td_map = {train_model.inputs_: state_in, actions_: actions,
                       advantages_: advantages,
                       rewards_: returns,
                       lr_: lr,
                       cliprange_: cliprange,
-                      oldneglopac_: neglogpac,
+                      oldneglopac_: neglogpacs,
                       oldvpred_: values}
             policy_loss, value_loss, policy_entropy, _ = sess.run([pg_loss, vf_loss, entropy, _train], td_map)
             return policy_loss, value_loss, policy_entropy
@@ -135,7 +135,7 @@ def constfn(val):
 
 
 def learn(policy, env, nsteps, total_timesteps, gamma, lam, vf_coef, ent_coef, lr, cliprange, max_grad_norm,
-          log_interval, name='sonic'):
+          log_interval, name='sonic', update=-1):
     noptepochs = 4
     nminibatches = 8
     if isinstance(lr, float):
@@ -153,8 +153,13 @@ def learn(policy, env, nsteps, total_timesteps, gamma, lam, vf_coef, ent_coef, l
                      ent_coef=ent_coef, vf_coef=vf_coef, max_grad_norm=max_grad_norm)
     runner = Runner(env, model, nsteps=nsteps, total_timesteps=total_timesteps, gamma=gamma, lam=lam)
 
+    if update > -1:
+        load_path = "./models/" + str(update) + "/sonic-ppo.ckpt"
+        model.load(load_path)
+
     tfirststart = time.time()
     nupdates = total_timesteps // batch_size + 1
+    model_count = 0
 
     for update in range(1, nupdates + 1):
         tstart = time.time()
@@ -189,7 +194,14 @@ def learn(policy, env, nsteps, total_timesteps, gamma, lam, vf_coef, ent_coef, l
             logger.record_tabular("explained_variance", float(ev))
             logger.record_tabular("time elapsed", float(tnow - tfirststart))
 
-            savepath = "./models/" + str(update) + "/" + name + "-ppo.ckpt"
+            # 只保存最近的20个模型
+            if model_count < 20:
+                model_count += 1
+            else:
+                model_count = 0
+
+            savepath = "./models/" + str(model_count) + "/" + name + "-ppo.ckpt"
+
             model.save(savepath)
             print("Saving to", savepath)
             test_score = testing(model)
@@ -261,10 +273,11 @@ def play(policy, env, update, name='sonic'):
     score = 0
     done = False
 
-    while done == False:
+    while not done:
         actions, values, _ = model.step(obs)
         obs, rewards, done, info = env.step(actions)
         score += rewards
         env.render()
+        time.sleep(0.1)
     print("Score ", score)
     env.close()

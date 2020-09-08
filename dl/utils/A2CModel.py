@@ -199,7 +199,7 @@ def sf01(arr):
 
 
 def learn(policy, env, nsteps, total_timesteps, gamma, lam, vf_coef, ent_coef, lr, max_grad_norm, log_interval,
-          name='sonic'):
+          name='sonic', update=-1):
     """
     训练模型
     :param policy:模型策略
@@ -225,8 +225,9 @@ def learn(policy, env, nsteps, total_timesteps, gamma, lam, vf_coef, ent_coef, l
     assert batch_size % nminibatches == 0
     model = A2CModel(policy=policy, ob_space=ob_space, action_space=ac_space, nenvs=nenvs
                      , nsteps=nsteps, ent_coef=ent_coef, vf_coef=vf_coef, max_grad_norm=max_grad_norm)
-    # load_path = "./models/260/sonic.ckpt"
-    # model.load(load_path)
+    if update > -1:
+        load_path = "./models/" + str(update) + "/sonic-a2c.ckpt"
+        model.load(load_path)
     runner = Runner(env, model, nsteps, total_timesteps, gamma, lam)
     tfirststart = time.time()
     model_count = 0
@@ -304,5 +305,6 @@ def play(policy, env, update=20, name='sonic'):
         obs, rewards, done, _ = env.step(actions)
         score += rewards
         env.render()
+        time.sleep(0.1)
     print("Score ", score)
     env.close()

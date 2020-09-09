@@ -136,6 +136,24 @@ def constfn(val):
 
 def learn(policy, env, nsteps, total_timesteps, gamma, lam, vf_coef, ent_coef, lr, cliprange, max_grad_norm,
           log_interval, name='sonic', update=-1):
+    """
+    学习模型
+    :param policy:模型策略
+    :param env: 环境
+    :param nsteps: 步长，即多少步伐更新一次模型
+    :param total_timesteps:总步伐
+    :param gamma: 衰减系数
+    :param lam: lam
+    :param vf_coef:coef
+    :param ent_coef: coef
+    :param lr: 学习率
+    :param cliprange:cliprange
+    :param max_grad_norm: max grad norm
+    :param log_interval: 多少次保存一次模型
+    :param name: 模型名称
+    :param update: update >-1,加载update模型继续学习，-1则从0开始
+    :return:
+    """
     noptepochs = 4
     nminibatches = 8
     if isinstance(lr, float):
@@ -155,6 +173,7 @@ def learn(policy, env, nsteps, total_timesteps, gamma, lam, vf_coef, ent_coef, l
 
     if update > -1:
         load_path = "./models/" + str(update) + "/sonic-ppo.ckpt"
+        print("load model:" + load_path)
         model.load(load_path)
 
     tfirststart = time.time()
@@ -212,22 +231,29 @@ def learn(policy, env, nsteps, total_timesteps, gamma, lam, vf_coef, ent_coef, l
 
 
 def safemean(xs):
+    """
+    计算平均值
+    :param xs:xs分数
+    :return: mean
+    """
     return np.nan if len(xs) == 0 else np.mean(xs)
 
 
 def testing(model):
+    """
+    测试模型的分数
+    :param model: 模型
+    :return: score
+    """
     test_env = DummyVecEnv([sonic_env.make_test])
-    ob_space = test_env.observation_space
-    ac_space = test_env.action_space
 
     total_score = 0
-    trial = 0
 
     for trial in range(3):
         obs = test_env.reset()
         done = False
         score = 0
-        while done:
+        while not done:
             action, value, _ = model.step(obs)
             obs, reward, done, info = test_env.step(action)
             score += reward[0]
@@ -239,12 +265,20 @@ def testing(model):
 
 
 def generate_output(policy, test_env, name='sonic'):
+    """
+    测试环境的反馈
+    :param policy:策略
+    :param test_env:测试环境
+    :param name: 模型名称
+    :return: score
+    """
     ob_space = test_env.observation_space
     ac_space = test_env.action_space
     test_score = []
-    models_indexes = [1, 10, 20, 30, 40]
+    models_indexes = [1, 6, 11, 16, 20]
     validation_model = PPOModel(policy=policy, ob_space=ob_space, action_space=ac_space,
                                 nenvs=1, nsteps=1, ent_coef=0, vf_coef=0, max_grad_norm=0)
+    obs = test_env.reset()
     for model_index in models_indexes:
         load_path = "./models/" + str(model_index) + "/" + name + "-ppo.ckpt"
         validation_model.load(load_path)
@@ -263,6 +297,14 @@ def generate_output(policy, test_env, name='sonic'):
 
 
 def play(policy, env, update, name='sonic'):
+    """
+    模型可视化操作游戏
+    :param policy: 模型
+    :param env: 环境
+    :param update: 模型版本
+    :param name: 模型名称
+    :return: none
+    """
     ob_space = env.observation_space
     ac_space = env.action_space
     model = PPOModel(policy=policy, ob_space=ob_space, action_space=ac_space,

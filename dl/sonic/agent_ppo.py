@@ -36,7 +36,7 @@ def main():
                        lr=lambda _: 2e-4,
                        cliprange=lambda _: 0.1,
                        max_grad_norm=0.5,
-                       log_interval=10)
+                       log_interval=10, update=3)
 
 
 if __name__ == '__main__':

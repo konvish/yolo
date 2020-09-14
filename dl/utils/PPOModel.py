@@ -223,9 +223,9 @@ def learn(policy, env, nsteps, total_timesteps, gamma, lam, vf_coef, ent_coef, l
 
             model.save(savepath)
             print("Saving to", savepath)
-            test_score = testing(model)
+            # test_score = testing(model)
 
-            logger.record_tabular("Mean score test level", test_score)
+            # logger.record_tabular("Mean score test level", test_score)
             logger.dump_tabular()
     env.close()
 
@@ -320,6 +320,6 @@ def play(policy, env, update, name='sonic'):
         obs, rewards, done, info = env.step(actions)
         score += rewards
         env.render()
-        time.sleep(0.1)
+        time.sleep(0.01)
     print("Score ", score)
     env.close()

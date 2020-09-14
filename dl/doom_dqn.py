@@ -147,7 +147,7 @@ def predict_action(explore_start, explore_stop, decay_rate, decay_step, state, a
 
 
 saver = tf.train.Saver()
-if training == True:
+if training:
     sess.run(tf.global_variables_initializer())
     decay_step = 0
     game.init()

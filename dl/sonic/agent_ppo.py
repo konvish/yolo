@@ -27,16 +27,16 @@ def main():
                                                                      env.make_train_10,
                                                                      env.make_train_11,
                                                                      env.make_train_12]),
-                       nsteps=2048,
+                       nsteps=1024,
                        total_timesteps=10000000,
                        gamma=0.99,
                        lam=0.95,
                        vf_coef=0.5,
                        ent_coef=0.01,
                        lr=lambda _: 2e-4,
-                       cliprange=lambda _: 0.1,
+                       cliprange=lambda _: 0.3,
                        max_grad_norm=0.5,
-                       log_interval=10, update=3)
+                       log_interval=10, update=4)
 
 
 if __name__ == '__main__':

@@ -305,6 +305,6 @@ def play(policy, env, update=20, name='sonic'):
         obs, rewards, done, _ = env.step(actions)
         score += rewards
         env.render()
-        time.sleep(0.1)
+        time.sleep(0.01)
     print("Score ", score)
     env.close()

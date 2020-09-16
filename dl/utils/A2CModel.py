@@ -5,10 +5,13 @@
 import tensorflow as tf
 import numpy as np
 from baselines.common import explained_variance
+from baselines.common.atari_wrappers import LazyFrames
 from baselines.common.runners import AbstractEnvRunner
+from baselines.common.vec_env import SubprocVecEnv
 from baselines import logger
 import time
 from dl.utils.utilities import find_trainable_variables, mse
+from baselines.common.vec_env.dummy_vec_env import DummyVecEnv
 
 
 class A2CModel(object):
@@ -160,7 +163,13 @@ class Runner(AbstractEnvRunner):
             mb_actions.append(actions)
             mb_values.append(values)
             mb_dones.append(self.dones)
-            self.obs[:], rewards, self.dones, _ = self.env.step(actions)
+            if type(self.env) == SubprocVecEnv:
+                self.obs[:], rewards, self.dones, _ = self.env.step(actions)
+            else:
+                ob, reward, done, _ = self.env.step(actions[0])
+                self.obs = np.array([ob])
+                rewards = np.array([reward])
+                self.dones = np.array([done])
             mb_rewards.append(rewards)
 
         mb_obs = np.asarray(mb_obs, dtype=np.uint8)
@@ -199,7 +208,7 @@ def sf01(arr):
 
 
 def learn(policy, env, nsteps, total_timesteps, gamma, lam, vf_coef, ent_coef, lr, max_grad_norm, log_interval,
-          name='sonic', update=-1):
+          name='sonic', nenvs=1, update=-1):
     """
     训练模型
     :param policy:模型策略
@@ -217,7 +226,6 @@ def learn(policy, env, nsteps, total_timesteps, gamma, lam, vf_coef, ent_coef, l
     """
     noptepochs = 4
     nminibatches = 8
-    nenvs = env.num_envs
     ob_space = env.observation_space
     ac_space = env.action_space
     batch_size = nenvs * nsteps
@@ -230,7 +238,7 @@ def learn(policy, env, nsteps, total_timesteps, gamma, lam, vf_coef, ent_coef, l
         model.load(load_path)
     runner = Runner(env, model, nsteps, total_timesteps, gamma, lam)
     tfirststart = time.time()
-    model_count = 0
+    model_count = update
 
     for update in range(1, total_timesteps // batch_size + 1):
         tstart = time.time()
@@ -301,10 +309,15 @@ def play(policy, env, update=20, name='sonic'):
     done = False
     while not done:
         boom += 1
+        if type(obs) == LazyFrames:
+            obs = np.copy(obs)[np.newaxis, :, :, :]
         actions, values = model.step(obs)
-        obs, rewards, done, _ = env.step(actions)
+        if type(env) == DummyVecEnv:
+            obs, rewards, done, _ = env.step(actions)
+        else:
+            obs, rewards, done, _ = env.step(actions[0])
         score += rewards
         env.render()
-        time.sleep(0.01)
+        # time.sleep(0.01)
     print("Score ", score)
     env.close()

@@ -4,7 +4,6 @@
 
 import tensorflow as tf
 from dl.utils.utilities import find_trainable_variables
-from dl.sonic import sonic_env
 import numpy as np
 import time
 from baselines import logger
@@ -143,7 +142,7 @@ def constfn(val):
 
 
 def learn(policy, env, nsteps, total_timesteps, gamma, lam, vf_coef, ent_coef, lr, cliprange, max_grad_norm,
-          log_interval, name='sonic', nenvs=1, update=-1):
+          log_interval, name='sonic', nenvs=1, update=-1, test_env=None):
     """
     学习模型
     :param policy:模型策略
@@ -230,31 +229,22 @@ def learn(policy, env, nsteps, total_timesteps, gamma, lam, vf_coef, ent_coef, l
 
             model.save(savepath)
             print("Saving to", savepath)
-            test_score = testing(model)
-
-            logger.record_tabular("Mean score test level", test_score)
+            # test_score = testing(model, test_env)
+            #
+            # logger.record_tabular("Mean score test level", test_score)
             logger.dump_tabular()
     env.close()
 
 
-def safemean(xs):
-    """
-    计算平均值
-    :param xs:xs分数
-    :return: mean
-    """
-    return np.nan if len(xs) == 0 else np.mean(xs)
-
-
-def testing(model):
+def testing(model, test_env):
     """
     测试模型的分数
     :param model: 模型
     :return: score
     """
-    test_env = DummyVecEnv([sonic_env.make_test])
-
     total_score = 0
+    if test_env == None:
+        return total_score
 
     for trial in range(3):
         obs = test_env.reset()
@@ -269,6 +259,15 @@ def testing(model):
     test_env.close()
     total_test_score = total_score / 3
     return total_test_score
+
+
+def safemean(xs):
+    """
+    计算平均值
+    :param xs:xs分数
+    :return: mean
+    """
+    return np.nan if len(xs) == 0 else np.mean(xs)
 
 
 def generate_output(policy, test_env, name='sonic'):

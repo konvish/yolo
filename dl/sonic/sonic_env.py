@@ -2,14 +2,11 @@
 # -*- coding:utf-8 -*-
 # Created by kong on 2020/9/1
 
-import numpy as np
-import gym
-from retro_contest.local import make
-from retro import make as make_retro
-from baselines.common.atari_wrappers import FrameStack
-import time
-
 import cv2
+import gym
+import numpy as np
+from baselines.common.atari_wrappers import FrameStack
+from retro_contest.local import make
 
 cv2.ocl.setUseOpenCL(False)
 
@@ -116,7 +113,6 @@ def make_env(env_idx):
         {'game': 'SonicTheHedgehog-Genesis', 'state': 'LabyrinthZone.Act3'}
     ]
 
-    print(dicts[env_idx]['game'], dicts[env_idx]['state'], flush=True)
     env = make(game=dicts[env_idx]['game'], state=dicts[env_idx]['state'], bk2dir="./records")
     env = ActionsDiscretizer(env)
     env = RewardScalar(env)

@@ -6,6 +6,7 @@ import tensorflow as tf
 import dl.sonic.sonic_env as env
 import dl.utils.architecture as policies
 from baselines.common.vec_env.subproc_vec_env import SubprocVecEnv
+from baselines.common.vec_env.dummy_vec_env import DummyVecEnv
 from dl.utils import A2CModel
 
 

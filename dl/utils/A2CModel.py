@@ -276,7 +276,6 @@ def learn(policy, env, nsteps, total_timesteps, gamma, lam, vf_coef, ent_coef, l
             logger.record_tabular("value_loss", float(lossvalues[1]))
             logger.record_tabular("explained_variance", float(ev))
             logger.record_tabular("time elapsed", float(tnow - tfirststart))
-            logger.dump_tabular()
             # 只保存最近的20个模型
             if model_count < 20:
                 model_count += 1
@@ -286,6 +285,7 @@ def learn(policy, env, nsteps, total_timesteps, gamma, lam, vf_coef, ent_coef, l
             savepath = "./models/" + str(model_count) + "/" + name + "-a2c.ckpt"
             model.save(savepath)
             print("Saving to", savepath)
+            logger.dump_tabular()
     env.close()
 
 

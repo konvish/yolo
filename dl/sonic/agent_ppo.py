@@ -3,10 +3,10 @@
 # Created by kong on 2020/9/2
 
 import tensorflow as tf
-import os
+from baselines.common.vec_env.subproc_vec_env import SubprocVecEnv
+from baselines.common.vec_env.dummy_vec_env import DummyVecEnv
 from dl.sonic import sonic_env as env
 from dl.utils import architecture as policies, PPOModel
-from baselines.common.vec_env.subproc_vec_env import SubprocVecEnv
 
 
 def main():
@@ -29,8 +29,9 @@ def main():
             # env.make_train_11,
             # env.make_train_12
         ])
+        dummyEnv = DummyVecEnv([env.make_train_3])
         PPOModel.learn(policy=policies.PPOPolicy, env=subEnv,
-                       nsteps=512,
+                       nsteps=2048,
                        total_timesteps=10000000,
                        gamma=0.99,
                        lam=0.95,
@@ -40,7 +41,7 @@ def main():
                        cliprange=lambda _: 0.2,
                        max_grad_norm=0.5,
                        nenvs=subEnv.num_envs,
-                       log_interval=10, update=18)
+                       log_interval=10, update=20, test_env=dummyEnv)
 
 
 if __name__ == '__main__':

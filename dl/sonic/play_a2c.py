@@ -15,7 +15,7 @@ def main():
     # os.environ["CUDA_VISIBLE_DEVICES"] = "0"
     # config.gpu_options.allow_growth = True
     with tf.Session():  # config=config):
-        A2CModel.play(policy=policies.A2CPolicy, env=DummyVecEnv([env.make_train_1]), update=4)
+        A2CModel.play(policy=policies.A2CPolicy, env=DummyVecEnv([env.make_train_2]), update=11)
 
 
 if __name__ == '__main__':

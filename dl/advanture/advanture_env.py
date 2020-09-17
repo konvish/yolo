@@ -7,8 +7,9 @@ import gym
 import retro
 import numpy as np
 from baselines.common.atari_wrappers import FrameStack
+import time
 
-from dl.sonic.sonic_env import PreprocessFrame, RewardScalar, AllowBacktracking
+from dl.sonic.sonic_env import PreprocessFrame, RewardScalar
 
 cv2.ocl.setUseOpenCL(False)
 
@@ -29,6 +30,40 @@ class ActionsDiscretizer(gym.ActionWrapper):
 
     def action(self, action):
         return self._actions[action].copy()
+
+
+class AllowBacktracking(gym.Wrapper):
+    def __init__(self, env):
+        super(AllowBacktracking, self).__init__(env)
+        self._cur_x = 0
+        self._last_x = 0
+        self._last_time = time.time()
+
+    def reset(self, **kwargs):
+        self._cur_x = 0
+        self._last_x = 0
+        self._last_time = time.time()
+        return self.env.reset(**kwargs)
+
+    def step(self, action):
+        obs, rew, done, info = self.env.step(action)
+        print(info)
+        # self._cur_x = info['x']
+        # # 右走奖励
+        # x_reward = self._cur_x - self._last_x
+        # # 速度奖励
+        # cur_time = time.time()
+        # s_reward = min(abs(float(x_reward) * 0.01 / (cur_time - self._last_time)), 10.0)
+        # self._last_time = cur_time
+        #
+        # self._last_x = self._cur_x
+        # if x_reward < -10 or x_reward > 5:
+        #     x_reward = 0
+        # # 死亡奖励
+        # d_reward = -100 * (info['prev_lives'] - info['lives'])
+        #
+        # reward = x_reward + d_reward + rew + s_reward
+        return obs, rew, done, info
 
 
 def make_env(env_idx):

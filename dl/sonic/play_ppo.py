@@ -14,7 +14,7 @@ def main():
     # os.environ["CUDA_VISBLE_DEVICES"] = "0"
     # config.gpr_options.allow_growth = True
     with tf.Session():  # config=config):
-        PPOModel.play(policy=policies.PPOPolicy, env=DummyVecEnv([env.make_train_3]), update=12)
+        PPOModel.play(policy=policies.PPOPolicy, env=DummyVecEnv([env.make_train_3]), update=9)
 
 
 if __name__ == '__main__':

@@ -7,6 +7,7 @@ import gym
 from retro_contest.local import make
 from retro import make as make_retro
 from baselines.common.atari_wrappers import FrameStack
+import time
 
 import cv2
 
@@ -54,19 +55,48 @@ class AllowBacktracking(gym.Wrapper):
     def __init__(self, env):
         super(AllowBacktracking, self).__init__(env)
         self._cur_x = 0
+        self._last_x = 0
         self._max_x = 0
+        self._max_x_count = 0
+        # self._last_time = time.time()
 
     def reset(self, **kwargs):
         self._cur_x = 0
+        self._last_x = 0
         self._max_x = 0
+        self._max_x_count = 0
+        # self._last_time = time.time()
         return self.env.reset(**kwargs)
 
     def step(self, action):
         obs, rew, done, info = self.env.step(action)
-        self._cur_x += rew
-        rew = max(0, self._cur_x - self._max_x)
-        self._max_x = max(self._max_x, self._cur_x)
-        return obs, rew, done, info
+        self._cur_x = info['x']
+        # 右走奖励
+        x_reward = self._cur_x - self._last_x
+        # 速度奖励
+        # cur_time = time.time()
+        # s_reward = min(abs(float(x_reward) * 0.01 / (cur_time - self._last_time)), 10.0)
+        # self._last_time = cur_time
+
+        self._last_x = self._cur_x
+        if x_reward < -10 or x_reward > 5:
+            x_reward = 0
+        # 死亡惩罚
+        d_reward = -100 * (info['prev_lives'] - info['lives'])
+
+        # 陷阱惩罚
+        t_reward = 0
+        self._max_x = max(self._max_x, self._last_x, self._cur_x)
+        if self._cur_x <= self._max_x:
+            self._max_x_count += 1
+        else:
+            self._max_x_count = 0
+        if self._max_x_count == 30:
+            t_reward = -10
+            self._max_x_count = 0
+
+        reward = x_reward + d_reward + rew + t_reward  # + s_reward
+        return obs, reward, done, info
 
 
 def make_env(env_idx):
@@ -153,13 +183,7 @@ def make_test_level_Green():
 
 
 def make_test():
-    env = make_retro(game='SonicTheHedgehog-Genesis', state='GreenHillZone.Act2', record="./records")
-    env = ActionsDiscretizer(env)
-    env = RewardScalar(env)
-    env = PreprocessFrame(env)
-    env = FrameStack(env, 4)
-    env = AllowBacktracking(env)
-    return env
+    return make_train_3()
 
 
 def make_env2(env_idx):

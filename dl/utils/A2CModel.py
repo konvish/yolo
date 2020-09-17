@@ -234,7 +234,7 @@ def learn(policy, env, nsteps, total_timesteps, gamma, lam, vf_coef, ent_coef, l
     model = A2CModel(policy=policy, ob_space=ob_space, action_space=ac_space, nenvs=nenvs
                      , nsteps=nsteps, ent_coef=ent_coef, vf_coef=vf_coef, max_grad_norm=max_grad_norm)
     if update > -1:
-        load_path = "./models/" + str(update) + "/sonic-a2c.ckpt"
+        load_path = "./models/" + str(update) + "/" + name + "-a2c.ckpt"
         model.load(load_path)
     runner = Runner(env, model, nsteps, total_timesteps, gamma, lam)
     tfirststart = time.time()
@@ -318,6 +318,6 @@ def play(policy, env, update=20, name='sonic'):
             obs, rewards, done, _ = env.step(actions[0])
         score += rewards
         env.render()
-        # time.sleep(0.01)
+        time.sleep(0.01)
     print("Score ", score)
     env.close()

@@ -2,6 +2,7 @@
 # -*- coding:utf-8 -*-
 # Created by kong on 2020/9/2
 import retro
+import time
 
 
 def test():
@@ -18,4 +19,8 @@ def test():
 
 
 if __name__ == '__main__':
-    test()
+    cur = time.time()
+    count = 0
+    for i in range(1000):
+        count += 3
+    print(time.time() - cur)

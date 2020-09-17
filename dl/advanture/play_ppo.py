@@ -15,7 +15,7 @@ def main():
     # config.gpr_options.allow_growth = True
     env = advanture_env.make_env(0)
     with tf.Session():  # config=config):
-        PPOModel.play(policy=policies.PPOPolicy, env=env, update=12)
+        PPOModel.play(policy=policies.PPOPolicy, env=env, update=2, name='adventure_island3')
 
 
 if __name__ == '__main__':

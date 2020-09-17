@@ -13,7 +13,7 @@ def main():
     # config.gpu_options.allow_growth = True
     env = advanture_env.make_env(0)
     with tf.Session():  # config=config):
-        A2CModel.play(policy=policies.A2CPolicy, env=env, update=6, name="adventure_island3")
+        A2CModel.play(policy=policies.A2CPolicy, env=env, update=1, name="adventure_island3")
 
 
 if __name__ == '__main__':

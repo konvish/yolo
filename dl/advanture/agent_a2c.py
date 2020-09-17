@@ -15,10 +15,10 @@ def train():
     # AdventureIslandII-Nes,AdventureIsland3-Nes
     env = advanture_env.make_env(0)
     with tf.Session():
-        A2CModel.learn(policy=policies.A2CPolicy, env=env, nsteps=2048,
+        A2CModel.learn(policy=policies.A2CPolicy, env=env, nsteps=3096,
                        total_timesteps=10000000,
                        gamma=0.99, lam=0.95, vf_coef=0.5, ent_coef=0.01, lr=2e-4, max_grad_norm=0.5, log_interval=10,
-                       name='adventure_island3')
+                       name='adventure_island3', update=12)
         # PPOModel.learn(policy=policies.PPOPolicy, env=SubprocVecEnv([env]), nsteps=2048,
         #                total_timesteps=10000000,
         #                gamma=0.99, lam=0.95, vf_coef=0.5, ent_coef=0.01, lr=2e-4, max_grad_norm=0.5, log_interval=10,

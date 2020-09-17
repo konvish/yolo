@@ -40,7 +40,7 @@ def main():
                        cliprange=lambda _: 0.2,
                        max_grad_norm=0.5,
                        nenvs=subEnv.num_envs,
-                       log_interval=10, update=-1)
+                       log_interval=10, update=18)
 
 
 if __name__ == '__main__':
